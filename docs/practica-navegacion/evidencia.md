@@ -1,8 +1,8 @@
 # Evidencia — práctica de navegación
 Repositorio: https://github.com/MauricioJ57/guardia_de_sigilo_repo_individual.git
 Commit inicial: ebe08ce7731eee63ccfb727d4a00ddba015125b0
-Commit de implementación: Pendiente — no se creó commit (no autorizado). Se completará con el hash del commit de entrega.
-Versión de entrega: commit final informado por el estudiante en la plataforma.
+Commit de implementación: 1864b63ea7c56ad35bcafa5aae1e2d164ecf3f4d
+Versión de entrega: "se uso "git rev-parse HEAD" para conseguir el commit final"
 Variante: B (única variante desarrollada).
 Herramienta/modelo o trabajo manual: OpenCode (agente; modelo opencode/big-pickle); revisión y decisiones humanas del estudiante.
 Entorno: Windows; Node con vitest 4.1.10; vite 6.4.3; verificación de tipos con tsc --noEmit.
