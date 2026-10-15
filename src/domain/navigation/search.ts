@@ -14,6 +14,22 @@ export interface SearchResult {
   readonly explored: readonly GridPoint[];
 }
 
+export interface EntryCostProfile {
+  readonly baseCost: number;
+  readonly penalty: number;
+  readonly penalizedCells: ReadonlySet<string>;
+}
+
+export const UNIT_ENTRY_COST: EntryCostProfile = {
+  baseCost: 1,
+  penalty: 0,
+  penalizedCells: new Set(),
+};
+
+function entryCost(profile: EntryCostProfile, point: GridPoint): number {
+  return profile.baseCost + (profile.penalizedCells.has(cellKey(point)) ? profile.penalty : 0);
+}
+
 interface AStarNode {
   readonly point: GridPoint;
   readonly cost: number;
@@ -61,7 +77,12 @@ export function findPathBfs(map: GridMap, start: GridPoint, goal: GridPoint): Se
   return failureResult("bfs", "unreachable", explored, maximumFrontier);
 }
 
-export function findPathAStar(map: GridMap, start: GridPoint, goal: GridPoint): SearchResult {
+export function findPathAStar(
+  map: GridMap,
+  start: GridPoint,
+  goal: GridPoint,
+  profile: EntryCostProfile = UNIT_ENTRY_COST,
+): SearchResult {
   const invalid = validateEndpoints("astar", map, start, goal);
   if (invalid) {
     return invalid;
@@ -89,7 +110,7 @@ export function findPathAStar(map: GridMap, start: GridPoint, goal: GridPoint): 
     explored.push(current.point);
 
     if (samePoint(current.point, goal)) {
-      return successResult("astar", start, goal, parents, explored, maximumFrontier);
+      return successResult("astar", start, goal, parents, explored, maximumFrontier, current.cost);
     }
 
     for (const neighbor of walkableNeighbors(map, current.point)) {
@@ -98,7 +119,7 @@ export function findPathAStar(map: GridMap, start: GridPoint, goal: GridPoint): 
         continue;
       }
 
-      const candidateCost = current.cost + 1;
+      const candidateCost = current.cost + entryCost(profile, neighbor);
       const knownCost = bestCosts.get(neighborKey);
       if (knownCost === undefined || candidateCost < knownCost) {
         insertionOrder += 1;
@@ -167,13 +188,14 @@ function successResult(
   parents: ReadonlyMap<string, GridPoint>,
   explored: readonly GridPoint[],
   maximumFrontier: number,
+  totalCost?: number,
 ): SearchResult {
   const path = reconstructPath(start, goal, parents);
   return {
     algorithm,
     status: "success",
     path,
-    totalCost: path.length - 1,
+    totalCost: totalCost ?? path.length - 1,
     expandedNodes: explored.length,
     maximumFrontier,
     explored,
